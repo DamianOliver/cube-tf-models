@@ -17,6 +17,9 @@
 A decoder to decode string tensors containing serialized tensorflow.Example
 protos for object detection.
 """
+import math
+import numpy as np
+
 import tensorflow as tf, tf_keras
 
 from official.vision.dataloaders import decoder
@@ -69,9 +72,11 @@ class TfExampleDecoder(decoder.Decoder):
           'image/source_id': tf.io.FixedLenFeature((), tf.string),
       })
 
-  def _decode_image(self, parsed_tensors):
+  def _decode_image(self, parsed_tensors, hsv):
     """Decodes the image and set its static shape."""
     image = tf.io.decode_image(parsed_tensors['image/encoded'], channels=3)
+    if hsv:
+      image = tf.image.rgb_to_hsv(image)
     image.set_shape([None, None, 3])
     return image
 
@@ -124,7 +129,7 @@ class TfExampleDecoder(decoder.Decoder):
         true_fn=lambda: tf.map_fn(_decode_png_mask, masks, dtype=tf.float32),
         false_fn=lambda: tf.zeros([0, height, width], dtype=tf.float32))
 
-  def decode(self, serialized_example):
+  def decode(self, serialized_example, hsv=False):
     """Decode the serialized example.
 
     Args:
@@ -162,7 +167,7 @@ class TfExampleDecoder(decoder.Decoder):
           tf.greater(tf.strings.length(parsed_tensors['image/source_id']), 0),
           lambda: parsed_tensors['image/source_id'],
           lambda: _generate_source_id(parsed_tensors['image/encoded']))
-    image = self._decode_image(parsed_tensors)
+    image = self._decode_image(parsed_tensors, hsv)
     boxes = self._decode_boxes(parsed_tensors)
     classes = self._decode_classes(parsed_tensors)
     areas = self._decode_areas(parsed_tensors)

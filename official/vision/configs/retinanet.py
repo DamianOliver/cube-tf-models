@@ -245,7 +245,7 @@ def retinanet_resnetfpn_coco() -> cfg.ExperimentConfig:
   steps_per_epoch = COCO_TRAIN_EXAMPLES // train_batch_size
 
   config = cfg.ExperimentConfig(
-      runtime=cfg.RuntimeConfig(mixed_precision_dtype='bfloat16'),
+      runtime=cfg.RuntimeConfig(mixed_precision_dtype='float16'),
       task=RetinaNetTask(
           init_checkpoint='gs://cloud-tpu-checkpoints/vision-2.0/resnet50_imagenet/ckpt-28080',
           init_checkpoint_modules='backbone',

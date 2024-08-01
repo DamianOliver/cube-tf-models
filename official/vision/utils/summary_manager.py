@@ -48,6 +48,7 @@ class ImageScalarSummaryManager(orbit.utils.SummaryManager):
   def _write_summaries(
       self, summary_dict: Dict[str, Any], relative_path: str = ''
   ):
+    print("_write_summaries")
     for name, value in summary_dict.items():
       if isinstance(value, dict):
         self._write_summaries(
@@ -68,6 +69,8 @@ def maybe_build_eval_summary_manager(
 ) -> Optional[orbit.utils.SummaryManager]:
   """Maybe creates a SummaryManager."""
 
+  print("maybe_build_eval_summary_manager", params.task.allow_image_summary)
+
   if (
       hasattr(params.task, 'allow_image_summary')
       and params.task.allow_image_summary
@@ -75,6 +78,8 @@ def maybe_build_eval_summary_manager(
     eval_summary_dir = os.path.join(
         model_dir, params.trainer.validation_summary_subdir
     )
+
+    print("eval_summary_dir", eval_summary_dir)
 
     return ImageScalarSummaryManager(
         eval_summary_dir,

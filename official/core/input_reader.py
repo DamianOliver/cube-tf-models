@@ -23,6 +23,8 @@ import tensorflow_datasets as tfds
 
 from official.core import config_definitions as cfg
 
+import tensorflow_io as tfio
+
 
 def _get_random_integer():
   return random.randint(0, (1 << 31) - 1)
@@ -467,14 +469,21 @@ class InputReader:
     """Returns a tf.data.Dataset object after shuffling, decoding, and parsing."""
 
     def _shuffle_and_decode(ds):
-      # If cache is enabled, we will call `shuffle()` later after `cache()`.
+      # If cache is enabled, we will call `shuffle()` later after `cache()`.  
       if self._is_training and not self._cache:
         ds = ds.shuffle(self._shuffle_buffer_size, seed=self._seed)
       # Decode
       ds = _maybe_map_fn(ds, self._decoder_fn)
       return ds
 
+    def convert_image(example):  # surgical implant - very dubious
+    #   example['image'] = tf.cast(tf.image.rgb_to_hsv(tf.cast(example['image'] / 255, tf.float32))*255, tf.uint8)
+      example['image'] = tf.cast(tfio.experimental.color.rgb_to_lab(tf.cast(example['image'] / 255, tf.float32))*255, tf.uint8)
+      return example
+
     dataset = tf.nest.map_structure(_shuffle_and_decode, dataset)
+    # print("dataset:", dataset, end="\n\n\n")
+    dataset = dataset.map(convert_image)
     if tf.nest.is_nested(dataset):
       dataset = self._combine_fn(dataset)
 

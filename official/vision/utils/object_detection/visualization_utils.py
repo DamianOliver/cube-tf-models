@@ -523,7 +523,7 @@ def draw_bounding_boxes_on_image_tensors(images,
       'max_boxes_to_draw': max_boxes_to_draw,
       'min_score_thresh': min_score_thresh,
       'agnostic_mode': False,
-      'line_thickness': 4
+      'line_thickness': 1
   }
   if true_image_shape is None:
     true_shapes = tf.constant(-1, shape=[images.shape.as_list()[0], 3])
@@ -580,6 +580,9 @@ def draw_bounding_boxes_on_image_tensors(images,
     image_with_boxes = tf.compat.v1.py_func(visualize_boxes_fn,
                                             image_and_detections[2:], tf.uint8)
     return image_with_boxes
+
+  # scores = tf.add(scores[:], 1)
+  elems = [true_shapes, original_shapes, images, boxes, classes, scores]
 
   images = tf.map_fn(draw_boxes, elems, dtype=tf.uint8, back_prop=False)
   return images
@@ -726,6 +729,7 @@ def visualize_boxes_and_labels_on_image_array(
   """
   # Create a display string (and color) for every box location, group any boxes
   # that correspond to the same location.
+
   box_to_display_str_map = collections.defaultdict(list)
   box_to_color_map = collections.defaultdict(str)
   box_to_instance_masks_map = {}
@@ -865,6 +869,7 @@ def update_detection_state(step_outputs=None) -> Dict[str, Any]:
   state = {}
   if step_outputs:
     state['image'] = tf.concat(step_outputs['visualization'][0], axis=0)
+    print("visualization[1] ", step_outputs['visualization'][1])
     state['detection_boxes'] = tf.concat(
         step_outputs['visualization'][1]['detection_boxes'], axis=0
     )
@@ -892,7 +897,8 @@ def update_detection_state(step_outputs=None) -> Dict[str, Any]:
     )
     if detection_masks:
       state['detection_masks'] = tf.concat(detection_masks, axis=0)
-
+  
+  print("state=", state)
   return state
 
 

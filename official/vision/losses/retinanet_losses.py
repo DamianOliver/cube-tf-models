@@ -16,7 +16,9 @@
 
 # Import libraries
 import tensorflow as tf, tf_keras
+from confusion_matrix import confusion_matrix
 
+print("retinanet losses imported in some way")
 
 def focal_loss(logits, targets, alpha, gamma):
   """Compute the focal loss between `logits` and the golden `target` values.
@@ -38,6 +40,8 @@ def focal_loss(logits, targets, alpha, gamma):
       [batch, d_1, ..., d_k, n_classes] representing
       normalized loss on the prediction map.
   """
+  print("FOCAL LOSS CALLED")
+  confusion_matrix(logits, targets)
   with tf.name_scope('focal_loss'):
     positive_label_mask = tf.equal(targets, 1.0)
     cross_entropy = (
@@ -83,6 +87,7 @@ class FocalLoss(tf_keras.losses.Loss):
             more details.
       name: Optional name for the op. Defaults to 'retinanet_class_loss'.
     """
+    print("INITING FOCAL LOSS")
     self._num_classes = num_classes
     self._alpha = alpha
     self._gamma = gamma

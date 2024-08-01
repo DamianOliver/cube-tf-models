@@ -96,7 +96,7 @@ class ExportBaseTest(tf.test.TestCase):
       return inputs + 1.0
 
     def _preprocessor(inputs):
-      print(inputs)
+    #   print(inputs)
       return inputs + 0.1
 
     module = TestModule(

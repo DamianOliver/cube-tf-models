@@ -17,6 +17,7 @@ from typing import Any, Mapping, List, Optional, Union, Sequence
 
 # Import libraries
 import tensorflow as tf
+import numpy as np
 
 from official.vision.ops import anchor
 
@@ -68,6 +69,7 @@ class RetinaNetModel(tf.keras.Model):
         'aspect_ratios': aspect_ratios,
         'anchor_size': anchor_size,
     }
+    # print("key565 initialized with", backbone, decoder, head, detection_generator)
     self._backbone = backbone
     self._decoder = decoder
     self._head = head
@@ -203,6 +205,8 @@ class RetinaNetModel(tf.keras.Model):
             'attribute_outputs': raw_attributes,
             'detection_attributes': final_results['detection_attributes'],
         })
+      # print("call outputs:", outputs['box_outputs']['3'])
+      # tf.print(outputs['box_outputs']['3'])
       return outputs
 
   @property

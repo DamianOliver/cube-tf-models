@@ -176,7 +176,7 @@ class TrainTest(tf.test.TestCase, parameterized.TestCase):
         params=experiment_config,
         model_dir=model_dir,
         run_post_eval=run_post_eval)
-    print(logs)
+    # print(logs)
 
 
 if __name__ == '__main__':

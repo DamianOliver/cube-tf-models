@@ -20,6 +20,10 @@ from absl import logging
 import gin
 import tensorflow as tf
 
+#tf.config.run_functions_eagerly(True) # hopefully doesn't break more than it fixes
+
+tf.get_logger().setLevel('ERROR')
+
 from official.common import distribute_utils
 from official.common import flags as tfm_flags
 from official.core import task_factory

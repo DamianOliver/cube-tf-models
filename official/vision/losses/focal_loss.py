@@ -15,9 +15,19 @@
 """Losses used for detection models."""
 
 import tensorflow as tf
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib
+from matplotlib import pyplot as plt
+import glob
+import numpy as np
+# np.set_printoptions(edgeitems=1, linewidth=10, precision=2, formatter=dict(float=lambda x: "%.3g" % x), floatmode='fixed', suppress=True, threshold=10)
 
+import traceback
+import sys
 
-class FocalLoss(tf.keras.losses.Loss):
+matplotlib.use('TkAgg')
+
+class FocalLoss(tf.keras.losses.Loss):  
   """Implements a Focal loss for classification problems.
 
   Reference:
@@ -53,27 +63,28 @@ class FocalLoss(tf.keras.losses.Loss):
     """Invokes the `FocalLoss`.
 
     Args:
-      y_true: A tensor of size [batch, num_anchors, num_classes]
-      y_pred: A tensor of size [batch, num_anchors, num_classes]
+    y_true: A tensor of size [batch, num_anchors, num_classes]
+    y_pred: A tensor of size [batch, num_anchors, num_classes]
 
     Returns:
-      Summed loss float `Tensor`.
+    Summed loss float `Tensor`.
     """
     with tf.name_scope('focal_loss'):
-      y_true = tf.cast(y_true, dtype=tf.float32)
-      y_pred = tf.cast(y_pred, dtype=tf.float32)
-      positive_label_mask = tf.equal(y_true, 1.0)
-      cross_entropy = (
-          tf.nn.sigmoid_cross_entropy_with_logits(labels=y_true, logits=y_pred))
-      probs = tf.sigmoid(y_pred)
-      probs_gt = tf.where(positive_label_mask, probs, 1.0 - probs)
-      # With small gamma, the implementation could produce NaN during back prop.
-      modulator = tf.pow(1.0 - probs_gt, self._gamma)
-      loss = modulator * cross_entropy
-      weighted_loss = tf.where(positive_label_mask, self._alpha * loss,
-                               (1.0 - self._alpha) * loss)
+        y_true = tf.cast(y_true, dtype=tf.float32)
+        y_pred = tf.cast(y_pred, dtype=tf.float32)
+        positive_label_mask = tf.equal(y_true, 1.0)
+        cross_entropy = (tf.nn.sigmoid_cross_entropy_with_logits(labels=y_true, logits=y_pred))
+        probs = tf.sigmoid(y_pred)
+        # tf.numpy_function(init_confusion, [probs, y_true], Tout=tf.int64)
+        probs_gt = tf.where(positive_label_mask, probs, 1.0 - probs)
+        # With small gamma, the implementation could produce NaN during back prop.
+        modulator = tf.pow(1.0 - probs_gt, self._gamma)
+        loss = modulator * cross_entropy
+        weighted_loss = tf.where(positive_label_mask, self._alpha * loss,
+                                (1.0 - self._alpha) * loss)
+        return weighted_loss
 
-    return weighted_loss
+
 
   def get_config(self):
     config = {
@@ -82,3 +93,11 @@ class FocalLoss(tf.keras.losses.Loss):
     }
     base_config = super(FocalLoss, self).get_config()
     return dict(list(base_config.items()) + list(config.items()))
+
+
+def init_confusion(y_pred: np.ndarray, y_true: np.ndarray):
+   y_pred, y_true = np.reshape(y_pred[:, :, :7], (-1, 7)), np.reshape(y_true[:, :, :7], (-1, 7))
+   true_indices = np.where(np.any(y_true, axis=-1))[0]
+   cmatrix = confusion_matrix(np.argmax(y_true[true_indices], axis=-1), np.argmax(y_pred[true_indices], axis=-1), normalize=None)
+   np.save('/home/damian/git/cube/confusion_data/cmatrix{}.npy'.format(len(glob.glob('/home/damian/git/cube/confusion_data/*.npy'))), cmatrix[1:, 1:])
+   return np.int64(1)

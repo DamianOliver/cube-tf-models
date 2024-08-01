@@ -41,7 +41,8 @@ def export_inference_graph(
     export_module: Optional[export_base.ExportModule] = None,
     export_checkpoint_subdir: Optional[str] = None,
     export_saved_model_subdir: Optional[str] = None,
-    save_options: Optional[tf.saved_model.SaveOptions] = None,
+    save_options: Optional[tf.saved_model.SaveOptions] = tf.saved_model.SaveOptions(experimental_custom_gradients=True),
+    # save_options: Optional[tf.saved_model.SaveOptions] = None,
     log_model_flops_and_params: bool = False,
     checkpoint: Optional[tf.train.Checkpoint] = None,
     input_name: Optional[str] = None,
@@ -80,7 +81,7 @@ def export_inference_graph(
     add_tpu_function_alias: Whether to add TPU function alias so that it can be
       converted to a TPU compatible saved model later. Default is False.
   """
-
+  save_options = tf.saved_model.SaveOptions(experimental_custom_gradients=True)
   if export_checkpoint_subdir:
     output_checkpoint_directory = os.path.join(
         export_dir, export_checkpoint_subdir)
@@ -151,6 +152,7 @@ def export_inference_graph(
       timestamped=False,
       save_options=save_options)
 
+#   tf.keras.models.save_model(export_module.model, '/home/damian/git/cube/KerasModels/HSVmodel.keras')
   if output_checkpoint_directory:
     ckpt = tf.train.Checkpoint(model=export_module.model)
     ckpt.save(os.path.join(output_checkpoint_directory, 'ckpt'))

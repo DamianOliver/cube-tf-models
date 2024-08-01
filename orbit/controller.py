@@ -29,8 +29,9 @@ import tensorflow as tf
 
 def _log(message: str):
   """Logs `message` to the `info` log, and also prints to stdout."""
-  logging.info(message)
-  print(message)
+#   logging.info(message)
+#   print(message)
+  pass
 
 
 logging.ABSLLogger.register_frame_to_skip(__file__, _log.__name__)

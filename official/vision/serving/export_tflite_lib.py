@@ -121,6 +121,19 @@ def convert_tflite_model(
   """
   if saved_model_dir:
     converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_dir)
+    
+
+
+    # model = tf.saved_model.load(saved_model_dir)
+    # # concrete_func = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
+    # print("signatures:", model.signatures)
+    # concrete_func = model.signatures['serving_default']
+    
+    # concrete_func.inputs[0].set_shape([1, 256, 256, 3])
+    # print("concrete model:", model)
+    # print("func:", concrete_func)
+    # converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
+
   elif model is not None:
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
   else:

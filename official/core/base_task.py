@@ -236,6 +236,7 @@ class Task(tf.Module, metaclass=abc.ABCMeta):
     Returns:
       A dictionary of logs.
     """
+    print("TRAIN STEP")
     if isinstance(inputs, tuple) and len(inputs) == 2:
       features, labels = inputs
     else:

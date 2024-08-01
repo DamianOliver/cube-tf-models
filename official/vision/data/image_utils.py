@@ -75,7 +75,7 @@ def encode_image(image_np: np.ndarray, image_format: str) -> bytes:
   if len(image_np.shape) > 2 and image_np.shape[2] == 1:
     image_pil = Image.fromarray(np.squeeze(image_np), 'L')
   else:
-    image_pil = Image.fromarray(image_np)
+    image_pil = Image.fromarray(image_np, mode='RGB')
   with io.BytesIO() as output:
     image_pil.save(output, format=validate_image_format(image_format))
     return output.getvalue()

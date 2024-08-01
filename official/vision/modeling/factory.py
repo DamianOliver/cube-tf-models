@@ -337,6 +337,7 @@ def build_retinanet(
       num_scales=model_config.anchor.num_scales,
       aspect_ratios=model_config.anchor.aspect_ratios,
       anchor_size=model_config.anchor.anchor_size)
+
   return model
 
 

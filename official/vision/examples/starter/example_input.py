@@ -38,9 +38,9 @@ class Decoder(decoder.Decoder):
     and labels. There is no limit on the number of fields to decode.
     """
     self._keys_to_features = {
-        'image/encoded':
-            tf.io.FixedLenFeature((), tf.string, default_value=''),
-        'image/class/label':
+        'x':
+            tf.io.VarLenFeature(tf.float32),
+        'y':
             tf.io.FixedLenFeature((), tf.int64, default_value=-1)
     }
 
@@ -90,18 +90,19 @@ class Parser(parser.Parser):
   def _parse_data(
       self, decoded_tensors: Mapping[str,
                                      tf.Tensor]) -> Tuple[tf.Tensor, tf.Tensor]:
-    label = tf.cast(decoded_tensors['image/class/label'], dtype=tf.int32)
-    image_bytes = decoded_tensors['image/encoded']
-    image = tf.io.decode_jpeg(image_bytes, channels=3)
-    image = tf.image.resize(
-        image, self._output_size, method=tf.image.ResizeMethod.BILINEAR)
-    image = tf.ensure_shape(image, self._output_size + [3])
+    label = tf.cast(decoded_tensors['y'], dtype=tf.int32)
+    image_bytes = tf.sparse.to_dense(decoded_tensors['x'], default_value=0)
+    #image = tf.io.decode_jpeg(image_bytes, channels=1)
+    #image = tf.image.resize(
+    #    image, self._output_size, method=tf.image.ResizeMethod.BILINEAR)
+    #image = tf.ensure_shape(image, self._output_size + [1])
 
     # Normalizes image with mean and std pixel values.
-    image = preprocess_ops.normalize_image(
-        image, offset=preprocess_ops.MEAN_RGB, scale=preprocess_ops.STDDEV_RGB)
+    #image = preprocess_ops.normalize_image(
+    #    image, offset=preprocess_ops.MEAN_RGB, scale=preprocess_ops.STDDEV_RGB)
 
-    image = tf.image.convert_image_dtype(image, self._dtype)
+    #image = tf.image.convert_image_dtype(image, self._dtype)
+    image = tf.reshape(image_bytes, [20, 28, 1])
     return image, label
 
   def _parse_train_data(

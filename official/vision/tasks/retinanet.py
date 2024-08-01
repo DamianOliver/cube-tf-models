@@ -17,6 +17,7 @@ from typing import Any, List, Mapping, Optional, Tuple
 
 from absl import logging
 import tensorflow as tf
+import numpy
 
 from official.common import dataset_fn
 from official.core import base_task
@@ -355,6 +356,7 @@ class RetinaNetTask(base_task.Task):
                       inputs: Tuple[Any, Any],
                       model: tf.keras.Model,
                       metrics: Optional[List[Any]] = None):
+
     """Validatation step.
 
     Args:
@@ -416,6 +418,7 @@ class RetinaNetTask(base_task.Task):
       logs.update(
           {'visualization': (tf.cast(features, dtype=tf.float32), outputs)}
       )
+
     return logs
 
   def aggregate_logs(self, state=None, step_outputs=None):
@@ -450,12 +453,13 @@ class RetinaNetTask(base_task.Task):
       logs.update(self.coco_metric.result())
     if self._task_config.use_wod_metrics:
       logs.update(self.wod_metric.result())
-
+    # print("aggregated logs:", aggregated_logs)
     # Add visualization for summary.
     if isinstance(aggregated_logs, dict) and 'image' in aggregated_logs:
       validation_outputs = visualization_utils.visualize_outputs(
           logs=aggregated_logs, task_config=self.task_config
       )
       logs.update(validation_outputs)
-
+      # print("validation_outputs", validation_outputs)
+      # print("validation call stack: ", inspect.stack()[1][3])
     return logs

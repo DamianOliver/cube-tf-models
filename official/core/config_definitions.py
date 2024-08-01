@@ -295,7 +295,7 @@ class TaskConfig(base_config.Config):
       dp_configs.DifferentialPrivacyConfig] = None
   # Whether to show image summary. Useful to visualize model predictions. Only
   # work for vision tasks.
-  allow_image_summary: bool = False
+  allow_image_summary: bool = True
 
 
 @dataclasses.dataclass

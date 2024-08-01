@@ -36,7 +36,7 @@ class ExampleModel(tf.keras.Model):
       self,
       num_classes: int,
       input_specs: tf.keras.layers.InputSpec = tf.keras.layers.InputSpec(
-          shape=[None, None, None, 3]),
+          shape=[None, None, None, 1]),
       **kwargs):
     """Initializes the example model.
 

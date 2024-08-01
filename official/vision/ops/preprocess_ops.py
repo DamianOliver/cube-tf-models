@@ -78,6 +78,7 @@ def normalize_image(image: tf.Tensor,
   """Normalizes the image to zero mean and unit variance."""
   with tf.name_scope('normalize_image'):
     image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+    return image  # surgical alteration - don't use Imagenet RGB normalizations
     return normalize_scaled_float_image(image, offset, scale)
 
 
